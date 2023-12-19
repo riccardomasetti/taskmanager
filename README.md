@@ -7,6 +7,7 @@ Every task present in the list "GenericTasks" is compared with the current date 
 ## Usage
 If you want to use the code you have to create a Google App Script project and download the dependencies for Google Tasks. Here how to do: https://developers.google.com/tasks/quickstart/apps-script?hl=it
 
+
 In this first versione it is required to already has the lists "GenericTasks", "Daily", "Weekly" and "Monthly" (case sensitive) in Google Tasks. 
 
 ## Credits

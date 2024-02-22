@@ -14,3 +14,4 @@ In this first versione it is required to have already created the lists "Generic
 
 ## Credits
   * Credits: credits to Pietro Carrucciu who gave me the idea for the project after seeing his version of the same project
+    github profile: https://github.com/carruc

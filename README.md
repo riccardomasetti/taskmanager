@@ -13,5 +13,6 @@ If you want to use the code you have to create a Google App Script project and d
 In this first versione it is required to have already created the lists "GenericTasks", "Daily", "Weekly" and "Monthly" (case sensitive) in Google Tasks. 
 
 ## Credits
-  * Credits: credits to Pietro Carrucciu who gave me the idea for the project after seeing his version of the same project
-    github profile: https://github.com/carruc
+  * Credits: credits to Pietro Carrucciu who gave me the idea for the project after seeing his version of the same project.
+    
+    Github profile: https://github.com/carruc

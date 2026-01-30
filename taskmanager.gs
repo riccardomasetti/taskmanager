@@ -1,61 +1,57 @@
 function categorizeGoogleTasks() {
+  const allLists = Tasks.Tasklists.list().items;
+  const listMap = {};
+  
+  allLists.forEach(l => listMap[l.title] = l.id);
 
-  var taskLists = Tasks.Tasklists.list();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const oneWeekLater = new Date(today);
+  oneWeekLater.setDate(today.getDate() + 7);
 
-  for (var i = 0; i < taskLists.items.length; i++) {
-    var taskList = taskLists.items[i];
-    var tasks = Tasks.Tasks.list(taskList.id);
-    
-    for (var j = 0; j < tasks.items.length; j++) {
-      var task = tasks.items[j];
-      var taskName = task.title;
-      var taskDue = task.due;
+  allLists.forEach(currentList => {
+    const tasks = Tasks.Tasks.list(currentList.id).items;
+    if (!tasks) return; 
 
-      if (task.status != "needsAction") {
-       continue; 
-      }
+    tasks.forEach(task => {
+      if (task.status !== "needsAction") return;
 
-      var today = new Date();
-      today.setHours(0, 0, 0, 0);
-      var oneWeekLater = new Date(today);
-      oneWeekLater.setDate(today.getDate() + 7);
-      var oneMonthLater = new Date(today);
-      oneMonthLater.setMonth(today.getMonth() + 1);
-
-      var categoryListId;
-      if (taskDue) {
-        var taskDueDate = new Date(taskDue);
-        taskDueDate.setHours(0, 0, 0, 0);
+      let targetListName = "";
       
-        if (taskDueDate <= today) {
-          categoryListId = getMyTaskListId("Daily");
-        } else if (taskDueDate <= oneWeekLater) {
-          categoryListId = getMyTaskListId("Weekly");
-        } else if (taskDueDate <= oneMonthLater) {
-          categoryListId = getMyTaskListId("Monthly");
-        } else {
-          Logger.log("Task end over a month");
-          continue;
-        }
+      if (!task.due) {
+        targetListName = "GenericTasks";  
+      } else {
+        const dueDate = new Date(task.due);
+        dueDate.setHours(0, 0, 0, 0);
 
+        if (dueDate <= today) {
+          targetListName = "Daily";
+        } else if (dueDate <= oneWeekLater) {
+          targetListName = "Weekly";
         } else {
-          categoryListId = getMyTaskListId("Monthly");
+          targetListName = "Monthly";
         }
-
-        Tasks.Tasks.insert({title: taskName, due: taskDue}, categoryListId);
-        Tasks.Tasks.remove(taskList.id, task.id);
       }
-    }
-  }
 
+      const targetListId = listMap[targetListName];
 
-function getMyTaskListId(listName) {
-  var taskLists = Tasks.Tasklists.list();
+      if (targetListId && currentList.id !== targetListId) {
+        console.log(`Moving "${task.title}" to ${targetListName}`);
+        
+        const newTask = {
+          title: task.title,
+          notes: task.notes || "",
+          due: task.due || null
+        };
 
-  for (var i = 0; i < taskLists.items.length; i++) {
-    var taskList = taskLists.items[i];
-    if (taskList.title == listName) {
-      return taskList.id;
-    }
-  }
+        try {
+          Tasks.Tasks.insert(newTask, targetListId);
+          Tasks.Tasks.remove(currentList.id, task.id);
+        } catch (e) {
+          console.error(`Failed to move task: ${task.title}. Error: ${e.message}`);
+        }
+      }
+    });
+  });
 }
